@@ -375,15 +375,14 @@ async function sendToGemma(transcription) {
         }));
 
         const systemPrompt = currentSystemPrompt || 'You are a helpful assistant.';
-        const messagesWithSystem = [
-            { role: 'user', parts: [{ text: systemPrompt }] },
-            { role: 'model', parts: [{ text: 'Understood. I will follow these instructions.' }] },
-            ...messages
-        ];
 
         const response = await ai.models.generateContentStream({
-            model: 'gemma-3-27b-it',
-            contents: messagesWithSystem,
+            model: 'gemini-2.5-flash',
+            contents: messages,
+            config: {
+                systemInstruction: systemPrompt,
+                thinkingConfig: { thinkingBudget: 0 },
+            },
         });
 
         let fullText = '';
@@ -403,7 +402,7 @@ async function sendToGemma(transcription) {
         const inputChars = systemPromptChars + historyChars;
         const outputChars = fullText.length;
 
-        incrementCharUsage('gemini', 'gemma-3-27b-it', inputChars + outputChars);
+        incrementCharUsage('gemini', 'gemini-2.5-flash', inputChars + outputChars);
 
         if (fullText.trim()) {
             groqConversationHistory.push({
